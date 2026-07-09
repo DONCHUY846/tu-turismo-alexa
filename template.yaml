@@ -1,0 +1,27 @@
+Transform: AWS::Serverless-2016-10-31
+Parameters: {}
+Resources:
+  LambdaFunctionFunctiontuturismo:
+    Type: AWS::Serverless::Function
+    Properties:
+      MemorySize: 128
+      Description: ''
+      Timeout: 3
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto
+      Handler: index.handler
+      Role: arn:aws:iam::838118687574:role/service-role/tu-turismo-role-ppheazh4
+      FileSystemConfigs: []
+      FunctionName: tu-turismo
+      Runtime: nodejs22.x
+      PackageType: Zip
+      LoggingConfig:
+        LogFormat: Text
+        LogGroup: /aws/lambda/tu-turismo
+      RecursiveLoop: Terminate
+      EphemeralStorage:
+        Size: 512
+      Architectures:
+        - x86_64
+      Tracing: PassThrough
+      CodeUri: LambdaFunctionFunctiontuturismo

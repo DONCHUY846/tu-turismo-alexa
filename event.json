@@ -1,0 +1,12 @@
+{
+  "version": "0.1",
+  "resource": "/",
+  "path": "/",
+  "httpMethod": "GET",
+  "headers": {},
+  "requestContext": {
+    "requestId": "1234567890"
+  },
+  "body": "{}",
+  "isBase64Encoded": false
+}

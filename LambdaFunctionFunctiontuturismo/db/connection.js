@@ -1,6 +1,23 @@
+import mongoose from 'mongoose';
+
+let isConnected = false;
+
 export async function connectToDatabase() {
-    // Aquí puedes integrar MongoDB o cualquier otra base de datos.
-    // Por ahora solo devuelve un placeholder para dejar preparada la conexión.
-    console.log('Conexión a base de datos preparada.');
-    return true;
+    if (isConnected) {
+        return mongoose.connection;
+    }
+
+    const uri = process.env.MONGODB_URI;
+
+    if (!uri) {
+        throw new Error('MONGODB_URI no está definida en las variables de entorno.');
+    }
+
+    await mongoose.connect(uri, {
+        serverSelectionTimeoutMS: 5000,
+    });
+
+    isConnected = true;
+    console.log('Conexión a MongoDB establecida.');
+    return mongoose.connection;
 }

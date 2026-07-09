@@ -11,8 +11,8 @@ import { UserGreetingIntentHandler } from './handlers/UserGreetingIntentHandler.
 export const handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
-        WhoIsTuTurismoHandler,
         UserGreetingIntentHandler,
+        WhoIsTuTurismoHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         NavigateHomeIntentHandler,

@@ -1,5 +1,5 @@
-export const GREETING = '¡Hola! Bienvenido a tu skill de prueba. ¿En qué te puedo ayudar hoy?';
-export const HELLO_WORLD_RESPONSE = '¡Hola Mundo! Este es el mensaje desde tu intent personalizado.';
+export const GREETING = '¡Hola! Bienvenido a tu-turismo. ¿En qué te puedo ayudar hoy?';
+export const HELLO_WORLD_RESPONSE = '¡Hola! Este es el mensaje desde tu-turismo.';
 export const USER_GREETING_RESPONSE = '¡Hola! Gracias por saludarme. ¿En qué te puedo ayudar hoy?';
 export const HELP_RESPONSE = 'Puedes decirme hola para probar el saludo, o decir salir para cerrar la skill. ¿Qué te gustaría hacer?';
 export const CANCEL_STOP_RESPONSE = '¡Adiós! Que tengas un buen día.';

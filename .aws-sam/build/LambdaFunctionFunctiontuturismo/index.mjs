@@ -7,12 +7,14 @@ import { SessionEndedRequestHandler } from './handlers/SessionEndedRequestHandle
 import { ErrorHandler } from './handlers/ErrorHandler.js';
 import { WhoIsTuTurismoHandler } from './handlers/WhoIsTuTurismoHandler.js';
 import { UserGreetingIntentHandler } from './handlers/UserGreetingIntentHandler.js';
+import { GetPlacesHandler } from './handlers/GetPlacesHandler.js';
 
 export const handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         UserGreetingIntentHandler,
         WhoIsTuTurismoHandler,
+        GetPlacesHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         NavigateHomeIntentHandler,

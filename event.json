@@ -1,12 +1,47 @@
 {
-  "version": "0.1",
-  "resource": "/",
-  "path": "/",
-  "httpMethod": "GET",
-  "headers": {},
-  "requestContext": {
-    "requestId": "1234567890"
+  "version": "1.0",
+  "session": {
+    "new": false,
+    "sessionId": "test-session",
+    "application": {
+      "applicationId": "amzn1.ask.skill.test"
+    },
+    "attributes": {},
+    "user": {
+      "userId": "test-user"
+    }
   },
-  "body": "{}",
-  "isBase64Encoded": false
+  "context": {
+    "System": {
+      "application": {
+        "applicationId": "amzn1.ask.skill.test"
+      },
+      "user": {
+        "userId": "test-user"
+      },
+      "device": {
+        "deviceId": "test-device",
+        "supportedInterfaces": {}
+      },
+      "apiEndpoint": "https://api.amazonalexa.com",
+      "apiAccessToken": "test-token"
+    }
+  },
+  "request": {
+    "type": "IntentRequest",
+    "requestId": "test-request-id",
+    "locale": "es-MX",
+    "timestamp": "2026-07-13T14:44:47Z",
+    "intent": {
+      "name": "GetPlacesIntent",
+      "confirmationStatus": "NONE",
+      "slots": {
+        "place": {
+          "name": "place",
+          "value": "guadalajara",
+          "confirmationStatus": "NONE"
+        }
+      }
+    }
+  }
 }

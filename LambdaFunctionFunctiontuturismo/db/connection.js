@@ -15,6 +15,7 @@ export async function connectToDatabase() {
 
     await mongoose.connect(uri, {
         serverSelectionTimeoutMS: 5000,
+        socketTimeoutMS: 30000,
     });
 
     isConnected = true;

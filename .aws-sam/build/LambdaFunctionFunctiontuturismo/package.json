@@ -12,6 +12,7 @@
   "type": "module",
   "dependencies": {
     "ask-sdk-core": "^2.14.0",
+    "dotenv": "^17.4.2",
     "mongoose": "^8.6.0"
   }
 }

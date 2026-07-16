@@ -9,7 +9,7 @@ import { WhoIsTuTurismoHandler } from './handlers/WhoIsTuTurismoHandler.js';
 import { UserGreetingIntentHandler } from './handlers/UserGreetingIntentHandler.js';
 import { GetPlacesHandler } from './handlers/GetPlacesHandler.js';
 
-export const handler = Alexa.SkillBuilders.custom()
+const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         UserGreetingIntentHandler,
@@ -21,5 +21,9 @@ export const handler = Alexa.SkillBuilders.custom()
         SessionEndedRequestHandler
     )
     .addErrorHandlers(ErrorHandler)
-    .lambda();
+    .create();
+
+export const handler = async (event, context) => {
+    return skill.invoke(event, context);
+};
 

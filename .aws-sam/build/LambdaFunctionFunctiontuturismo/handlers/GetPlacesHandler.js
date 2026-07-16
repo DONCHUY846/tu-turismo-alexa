@@ -12,9 +12,8 @@ export const GetPlacesHandler = {
     },
     async handle(handlerInput) {
         const slots = handlerInput.requestEnvelope.request?.intent?.slots;
-        const ubicacionRaw = slots?.ubicacion?.value || '';
+        const ubicacionRaw = slots?.place?.value || '';
         const ubicacionSanitizada = sanitizeSlot(ubicacionRaw);
-
         if (!ubicacionSanitizada) {
             const speechReprompt = '¿De qué ciudad o municipio de Jalisco te gustaría recibir recomendaciones?';
             return handlerInput.responseBuilder
@@ -32,7 +31,7 @@ export const GetPlacesHandler = {
                     { descripcion: { $regex: new RegExp(ubicacionSanitizada, 'i') } },
                     { direccion: { $regex: new RegExp(ubicacionSanitizada, 'i') } }
                 ]
-            }).limit(3);
+            }).maxTimeMS(25000).limit(3);
 
             if (lugares.length === 0) {
                 const noResultsSpeech = `Lo siento, en este momento no tengo recomendaciones registradas para ${ubicacionSanitizada}. ¿Quieres intentar con otra ciudad?`;
@@ -50,10 +49,11 @@ export const GetPlacesHandler = {
             });
             speechOutput += '¿Te gustaría saber más de alguno o prefieres guardar alguno en tus favoritos?';
 
-            return handlerInput.responseBuilder
+            const response = handlerInput.responseBuilder
                 .speak(speechOutput)
                 .reprompt('Dime si deseas buscar en otro municipio.')
                 .getResponse();
+            return response;
         } catch (error) {
             console.error('Error al buscar lugares:', error);
             return handlerInput.responseBuilder

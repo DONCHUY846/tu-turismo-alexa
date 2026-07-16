@@ -1,15 +1,17 @@
 Transform: AWS::Serverless-2016-10-31
-Parameters: {}
 Resources:
   LambdaFunctionFunctiontuturismo:
     Type: AWS::Serverless::Function
     Properties:
       MemorySize: 128
       Description: ''
-      Timeout: 3
+      Timeout: 50
       RuntimeManagementConfig:
         UpdateRuntimeOn: Auto
       Handler: index.handler
+      Environment:
+        Variables:
+          MONGODB_URI: '{{resolve:secretsmanager:arn:aws:secretsmanager:us-east-1:838118687574:secret:tu-turismo/mongodb-uri-lLkn3f:SecretString}}'
       Role: arn:aws:iam::838118687574:role/service-role/tu-turismo-role-ppheazh4
       FileSystemConfigs: []
       FunctionName: tu-turismo

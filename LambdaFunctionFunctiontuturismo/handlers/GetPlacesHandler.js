@@ -2,6 +2,7 @@ import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
 import { Place } from '../models/Place.js';
 import { sanitizeSlot } from '../utils/helpers.js';
+import { WEBSITE_URL } from '../constants.js';
 
 export const GetPlacesHandler = {
     canHandle(handlerInput) {
@@ -25,13 +26,15 @@ export const GetPlacesHandler = {
         try {
             await connectToDatabase();
 
-            const lugares = await Place.find({
+            const filter = {
                 $or: [
                     { nombre: { $regex: new RegExp(ubicacionSanitizada, 'i') } },
                     { descripcion: { $regex: new RegExp(ubicacionSanitizada, 'i') } },
                     { direccion: { $regex: new RegExp(ubicacionSanitizada, 'i') } }
                 ]
-            }).maxTimeMS(25000).limit(3);
+            };
+            const totalCount = await Place.countDocuments(filter);
+            const lugares = await Place.find(filter).maxTimeMS(25000).limit(3);
 
             if (lugares.length === 0) {
                 const noResultsSpeech = `Lo siento, en este momento no tengo recomendaciones registradas para ${ubicacionSanitizada}. ¿Quieres intentar con otra ciudad?`;
@@ -47,6 +50,9 @@ export const GetPlacesHandler = {
                 const descripcion = lugar.descripcion || lugar.description || 'un lugar interesante para visitar';
                 speechOutput += `${index + 1}: ${nombre}. ${descripcion}. `;
             });
+            if (totalCount > 3) {
+                speechOutput += `Hay más lugares disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
+            }
             speechOutput += '¿Te gustaría saber más de alguno o prefieres guardar alguno en tus favoritos?';
 
             const response = handlerInput.responseBuilder

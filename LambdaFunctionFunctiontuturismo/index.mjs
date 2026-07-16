@@ -8,6 +8,7 @@ import { ErrorHandler } from './handlers/ErrorHandler.js';
 import { WhoIsTuTurismoHandler } from './handlers/WhoIsTuTurismoHandler.js';
 import { UserGreetingIntentHandler } from './handlers/UserGreetingIntentHandler.js';
 import { GetPlacesHandler } from './handlers/GetPlacesHandler.js';
+import { GetNewEventsHandler } from './handlers/GetNewEventsHandler.js';
 
 const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
@@ -15,6 +16,7 @@ const skill = Alexa.SkillBuilders.custom()
         UserGreetingIntentHandler,
         WhoIsTuTurismoHandler,
         GetPlacesHandler,
+        GetNewEventsHandler,
         HelpIntentHandler,
         CancelAndStopIntentHandler,
         NavigateHomeIntentHandler,

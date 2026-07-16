@@ -23,27 +23,31 @@ export const GetNewEventsHandler = {
                     .getResponse();
             }
 
-            let speechOutput = 'Próximamente en Jalisco tenemos los siguientes eventos destacados. ';
+            const items = eventos.map(e => ({
+                id: e._id.toString(),
+                nombre: e.nombre,
+                tipo: 'evento'
+            }));
 
-            eventos.forEach((evento) => {
-                if (evento.fecha) {
-                    const opciones = { day: 'numeric', month: 'long' };
-                    const fechaLegible = evento.fecha.toLocaleDateString('es-MX', opciones);
-                    speechOutput += `El ${fechaLegible} se llevará a cabo ${evento.nombre}. `;
-                } else {
-                    speechOutput += `${evento.nombre}. `;
-                }
+            handlerInput.attributesManager.setSessionAttributes({
+                ultimosItems: items
+            });
+
+            let speechOutput = 'Próximamente tenemos los siguientes eventos destacados. ';
+
+            items.forEach((item, index) => {
+                speechOutput += `${index + 1}: ${item.nombre}. `;
             });
 
             if (totalCount > 3) {
                 speechOutput += `Hay más eventos disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
             }
 
-            speechOutput += '¿Te gustaría que guarde alguno de estos eventos en tus favoritos?';
+            speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
 
             return handlerInput.responseBuilder
                 .speak(speechOutput)
-                .reprompt('¿Deseas escuchar nuevamente los eventos o buscar otra cosa?')
+                .reprompt('Di el número del evento que quieres guardar.')
                 .getResponse();
 
         } catch (error) {

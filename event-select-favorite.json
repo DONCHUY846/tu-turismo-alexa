@@ -1,0 +1,55 @@
+{
+  "version": "1.0",
+  "session": {
+    "new": false,
+    "sessionId": "test-session",
+    "application": {
+      "applicationId": "amzn1.ask.skill.test"
+    },
+    "attributes": {
+      "ultimosItems": [
+        { "id": "69b9b8c3bd4834e0920482aa", "nombre": "Teatro Degollado", "tipo": "lugar" },
+        { "id": "69b9b8c3bd4834e0920482ab", "nombre": "Hospicio Cabañas", "tipo": "lugar" },
+        { "id": "69dafb7ad869adee5c059642", "nombre": "Jose Cuervo Express", "tipo": "lugar" }
+      ]
+    },
+    "user": {
+      "userId": "test-user",
+      "accessToken": "fabian@tu-turismo.com.mx"
+    }
+  },
+  "context": {
+    "System": {
+      "application": {
+        "applicationId": "amzn1.ask.skill.test"
+      },
+      "user": {
+        "userId": "test-user",
+        "accessToken": "fabian@tu-turismo.com.mx"
+      },
+      "device": {
+        "deviceId": "test-device",
+        "supportedInterfaces": {}
+      },
+      "apiEndpoint": "https://api.amazonalexa.com",
+      "apiAccessToken": "test-token"
+    }
+  },
+  "request": {
+    "type": "IntentRequest",
+    "requestId": "test-request-id",
+    "locale": "es-MX",
+    "timestamp": "2026-07-16T14:44:47Z",
+    "intent": {
+      "name": "SelectFavoriteIntent",
+      "confirmationStatus": "NONE",
+      "slots": {
+        "numero": {
+          "name": "numero",
+          "value": "3",
+          "confirmationStatus": "NONE"
+        }
+      }
+    }
+  }
+}

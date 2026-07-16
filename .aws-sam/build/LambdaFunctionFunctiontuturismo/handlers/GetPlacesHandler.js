@@ -44,20 +44,28 @@ export const GetPlacesHandler = {
                     .getResponse();
             }
 
+            const items = lugares.map(l => ({
+                id: l._id.toString(),
+                nombre: l.nombre || l.name || 'Lugar turístico',
+                tipo: 'lugar'
+            }));
+
+            handlerInput.attributesManager.setSessionAttributes({
+                ultimosItems: items
+            });
+
             let speechOutput = `Tengo varias recomendaciones en ${ubicacionSanitizada}. `;
-            lugares.forEach((lugar, index) => {
-                const nombre = lugar.nombre || lugar.name || 'Lugar turístico';
-                const descripcion = lugar.descripcion || lugar.description || 'un lugar interesante para visitar';
-                speechOutput += `${index + 1}: ${nombre}. ${descripcion}. `;
+            items.forEach((item, index) => {
+                speechOutput += `${index + 1}: ${item.nombre}. `;
             });
             if (totalCount > 3) {
                 speechOutput += `Hay más lugares disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
             }
-            speechOutput += '¿Te gustaría saber más de alguno o prefieres guardar alguno en tus favoritos?';
+            speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
 
             const response = handlerInput.responseBuilder
                 .speak(speechOutput)
-                .reprompt('Dime si deseas buscar en otro municipio.')
+                .reprompt('Di el número del lugar que quieres guardar.')
                 .getResponse();
             return response;
         } catch (error) {

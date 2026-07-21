@@ -6,7 +6,10 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true },
     telefono: { type: String, default: '' },
     rol: { type: String, default: 'turista' },
-    password: { type: String, required: true }
+    password: { type: String, required: true },
+    idioma: { type: String, default: '' },
+    lastLogin: { type: String, default: '' },
+    last_login: { type: String, default: '' }
 }, {
     collection: 'users',
     timestamps: {

@@ -11,6 +11,7 @@ import { GetPlacesHandler } from './handlers/GetPlacesHandler.js';
 import { GetNewEventsHandler } from './handlers/GetNewEventsHandler.js';
 import { AddFavoriteHandler } from './handlers/AddFavoriteHandler.js';
 import { SelectFavoriteHandler } from './handlers/SelectFavoriteHandler.js';
+import { InicioSesionHandler } from './handlers/InicioSesionHandler.js';
 
 const skill = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
@@ -19,6 +20,7 @@ const skill = Alexa.SkillBuilders.custom()
         WhoIsTuTurismoHandler,
         GetPlacesHandler,
         GetNewEventsHandler,
+        InicioSesionHandler,
         AddFavoriteHandler,
         SelectFavoriteHandler,
         HelpIntentHandler,

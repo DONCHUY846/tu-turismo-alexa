@@ -50,9 +50,9 @@ export const GetPlacesHandler = {
                 tipo: 'lugar'
             }));
 
-            handlerInput.attributesManager.setSessionAttributes({
-                ultimosItems: items
-            });
+            const attrs = handlerInput.attributesManager.getSessionAttributes();
+            attrs.ultimosItems = items;
+            handlerInput.attributesManager.setSessionAttributes(attrs);
 
             let speechOutput = `Tengo varias recomendaciones en ${ubicacionSanitizada}. `;
             items.forEach((item, index) => {

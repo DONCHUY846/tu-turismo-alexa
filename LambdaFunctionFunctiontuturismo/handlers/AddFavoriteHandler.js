@@ -1,6 +1,5 @@
 import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
-import { User } from '../models/User.js';
 import { Favorite } from '../models/Favorite.js';
 import { RESPUESTAS } from '../constants.js';
 
@@ -10,34 +9,19 @@ export const AddFavoriteHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AddFavoriteIntent';
     },
     async handle(handlerInput) {
-        const { requestEnvelope } = handlerInput;
-
-        const accessToken = Alexa.getAccountLinkingAccessToken(requestEnvelope);
-        const userId = requestEnvelope.context?.System?.user?.userId;
+        const { requestEnvelope, attributesManager } = handlerInput;
 
         try {
             await connectToDatabase();
 
-            let usuarioId;
-
-            if (accessToken) {
-                const email = accessToken.includes('@')
-                    ? accessToken
-                    : `${accessToken}@tu-turismo.com.mx`;
-                const usuario = await User.findOne({ email });
-                if (usuario) {
-                    usuarioId = usuario._id.toString();
-                }
-            }
+            const sessionAttributes = attributesManager.getSessionAttributes();
+            const usuarioId = sessionAttributes.usuarioId;
 
             if (!usuarioId) {
-                if (!userId) {
-                    return handlerInput.responseBuilder
-                        .speak(RESPUESTAS.SIN_CUENTA)
-                        .withLinkAccountCard()
-                        .getResponse();
-                }
-                usuarioId = userId;
+                return handlerInput.responseBuilder
+                    .speak(RESPUESTAS.SIN_CUENTA)
+                    .reprompt(RESPUESTAS.SIN_CUENTA)
+                    .getResponse();
             }
 
             const slots = requestEnvelope.request?.intent?.slots || {};

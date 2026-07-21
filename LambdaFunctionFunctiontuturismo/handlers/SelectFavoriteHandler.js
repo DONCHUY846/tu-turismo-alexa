@@ -1,6 +1,5 @@
 import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
-import { User } from '../models/User.js';
 import { Favorite } from '../models/Favorite.js';
 import { RESPUESTAS } from '../constants.js';
 
@@ -12,36 +11,23 @@ export const SelectFavoriteHandler = {
     async handle(handlerInput) {
         const { requestEnvelope, attributesManager } = handlerInput;
 
-        const accessToken = Alexa.getAccountLinkingAccessToken(requestEnvelope);
-        const userId = requestEnvelope.context?.System?.user?.userId;
-
         try {
             await connectToDatabase();
 
-            let usuarioId;
-
-            if (accessToken) {
-                const email = accessToken.includes('@')
-                    ? accessToken
-                    : `${accessToken}@tu-turismo.com.mx`;
-                const usuario = await User.findOne({ email });
-                if (usuario) {
-                    usuarioId = usuario._id.toString();
-                }
-            }
+            const sessionAttributes = attributesManager.getSessionAttributes();
+            const usuarioId = sessionAttributes.usuarioId;
 
             if (!usuarioId) {
-                if (!userId) {
-                    return handlerInput.responseBuilder
-                        .speak(RESPUESTAS.SIN_CUENTA)
-                        .withLinkAccountCard()
-                        .getResponse();
-                }
-                usuarioId = userId;
+                return handlerInput.responseBuilder
+                    .speak(RESPUESTAS.SIN_CUENTA)
+                    .reprompt(RESPUESTAS.SIN_CUENTA)
+                    .getResponse();
             }
 
             const slots = requestEnvelope.request?.intent?.slots || {};
-            const numero = parseInt(slots?.numero?.value, 10);
+            const rawNumero = (slots?.numero?.value || '').toLowerCase().replace(/^(el|la|el\s+numero|numero)\s+/i, '');
+            const mapOrdinal = { 'primero': 1, 'primer': 1, 'uno': 1, 'segundo': 2, 'dos': 2, 'tercero': 3, 'tercer': 3, 'tres': 3 };
+            const numero = parseInt(rawNumero, 10) || mapOrdinal[rawNumero] || 0;
 
             if (!numero || numero < 1 || numero > 3) {
                 const speechOutput = 'Por favor, di un número del 1 al 3 para guardar en favoritos.';
@@ -51,7 +37,6 @@ export const SelectFavoriteHandler = {
                     .getResponse();
             }
 
-            const sessionAttributes = attributesManager.getSessionAttributes();
             const items = sessionAttributes.ultimosItems || [];
 
             const item = items[numero - 1];

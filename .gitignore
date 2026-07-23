@@ -15,6 +15,7 @@ sam-tests/
 .env
 .env.local
 .env.*.local
+env.json
 
 # IDE & Editor
 .vscode/

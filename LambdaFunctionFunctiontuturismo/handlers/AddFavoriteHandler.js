@@ -37,7 +37,7 @@ export const AddFavoriteHandler = {
             }
 
             const existeFavorito = await Favorite.findOne({
-                usuario_id: usuarioId,
+                user_id: usuarioId,
                 referencia_id: referenciaId
             });
 
@@ -50,7 +50,7 @@ export const AddFavoriteHandler = {
             }
 
             await Favorite.create({
-                usuario_id: usuarioId,
+                user_id: usuarioId,
                 tipo,
                 referencia_id: referenciaId,
                 fecha_guardado: new Date()

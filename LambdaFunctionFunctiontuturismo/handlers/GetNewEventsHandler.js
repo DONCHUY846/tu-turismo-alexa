@@ -1,6 +1,7 @@
 import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
 import { Event } from '../models/Event.js';
+import { sanitizeSlot } from '../utils/helpers.js';
 import { WEBSITE_URL } from '../constants.js';
 
 export const GetNewEventsHandler = {
@@ -9,17 +10,36 @@ export const GetNewEventsHandler = {
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'GetNewEventsIntent';
     },
     async handle(handlerInput) {
+        const slots = handlerInput.requestEnvelope.request?.intent?.slots;
+        const ubicacionRaw = slots?.place?.value || '';
+        const ubicacionSanitizada = sanitizeSlot(ubicacionRaw);
+
+        if (!ubicacionSanitizada) {
+            const speechReprompt = '¿De qué ciudad o municipio de Jalisco te gustaría buscar eventos?';
+            return handlerInput.responseBuilder
+                .speak('¿De qué lugar de Jalisco te gustaría buscar eventos? Por ejemplo, Guadalajara o Tequila.')
+                .reprompt(speechReprompt)
+                .getResponse();
+        }
+
         try {
             await connectToDatabase();
 
-            const eventos = await Event.find({}).limit(3);
-            const totalCount = await Event.countDocuments({});
+            const filter = {
+                $or: [
+                    { nombre: { $regex: new RegExp(ubicacionSanitizada, 'i') } },
+                    { descripcion: { $regex: new RegExp(ubicacionSanitizada, 'i') } },
+                    { lugar_nombre: { $regex: new RegExp(ubicacionSanitizada, 'i') } }
+                ]
+            };
+            const totalCount = await Event.countDocuments(filter);
+            const eventos = await Event.find(filter).maxTimeMS(25000).limit(3);
 
             if (eventos.length === 0) {
-                const noEventsSpeech = 'Por el momento no tengo eventos culturales o turísticos próximos registrados en Jalisco. ¿Te gustaría buscar recomendaciones de lugares?';
+                const noResultsSpeech = `Lo siento, no encontré eventos en ${ubicacionSanitizada}. ¿Quieres intentar con otra ciudad?`;
                 return handlerInput.responseBuilder
-                    .speak(noEventsSpeech)
-                    .reprompt('Dime si prefieres buscar lugares para visitar.')
+                    .speak(noResultsSpeech)
+                    .reprompt('Prueba diciendo otra ubicación de Jalisco.')
                     .getResponse();
             }
 
@@ -29,11 +49,11 @@ export const GetNewEventsHandler = {
                 tipo: 'evento'
             }));
 
-            handlerInput.attributesManager.setSessionAttributes({
-                ultimosItems: items
-            });
+            const attrs = handlerInput.attributesManager.getSessionAttributes();
+            attrs.ultimosItems = items;
+            handlerInput.attributesManager.setSessionAttributes(attrs);
 
-            let speechOutput = 'Próximamente tenemos los siguientes eventos destacados. ';
+            let speechOutput = `Próximamente tenemos los siguientes eventos destacados en ${ubicacionSanitizada}. `;
 
             items.forEach((item, index) => {
                 speechOutput += `${index + 1}: ${item.nombre}. `;

@@ -16,6 +16,10 @@ export const GetPlacesHandler = {
         const ubicacionRaw = slots?.place?.value || '';
         const ubicacionSanitizada = sanitizeSlot(ubicacionRaw);
         if (!ubicacionSanitizada) {
+            const attrs = handlerInput.attributesManager.getSessionAttributes();
+            attrs.pendingAction = 'asking_location';
+            attrs.pendingIntent = 'GetPlacesIntent';
+            handlerInput.attributesManager.setSessionAttributes(attrs);
             const speechReprompt = '¿De qué ciudad o municipio de Jalisco te gustaría recibir recomendaciones?';
             return handlerInput.responseBuilder
                 .speak('¿De qué lugar de Jalisco te gustaría buscar recomendaciones? Por ejemplo, Zapopan o Tequila.')

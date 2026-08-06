@@ -15,11 +15,54 @@ export const GetNewEventsHandler = {
         const ubicacionSanitizada = sanitizeSlot(ubicacionRaw);
 
         if (!ubicacionSanitizada) {
-            const speechReprompt = '¿De qué ciudad o municipio de Jalisco te gustaría buscar eventos?';
-            return handlerInput.responseBuilder
-                .speak('¿De qué lugar de Jalisco te gustaría buscar eventos? Por ejemplo, Guadalajara o Tequila.')
-                .reprompt(speechReprompt)
-                .getResponse();
+            try {
+                await connectToDatabase();
+
+                const now = new Date();
+                const totalCount = await Event.countDocuments({ fecha: { $gte: now } });
+                const eventos = await Event.find({ fecha: { $gte: now } })
+                    .sort({ fecha: 1 })
+                    .maxTimeMS(25000)
+                    .limit(3);
+
+                if (eventos.length === 0) {
+                    return handlerInput.responseBuilder
+                        .speak(`No tengo eventos próximos registrados. Puedes ver el catálogo completo en ${WEBSITE_URL}.`)
+                        .reprompt('Puedes pedir eventos en una ciudad específica, por ejemplo "eventos en Guadalajara".')
+                        .getResponse();
+                }
+
+                const items = eventos.map(e => ({
+                    id: e._id.toString(),
+                    nombre: e.nombre,
+                    tipo: 'evento'
+                }));
+
+                const attrs = handlerInput.attributesManager.getSessionAttributes();
+                attrs.ultimosItems = items;
+                handlerInput.attributesManager.setSessionAttributes(attrs);
+
+                let speechOutput = `Próximamente tenemos los siguientes eventos destacados. `;
+                items.forEach((item, index) => {
+                    speechOutput += `${index + 1}: ${item.nombre}. `;
+                });
+                if (totalCount > 3) {
+                    speechOutput += `Hay más eventos disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
+                }
+                speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
+
+                return handlerInput.responseBuilder
+                    .speak(speechOutput)
+                    .reprompt('Di el número del evento que quieres guardar.')
+                    .getResponse();
+
+            } catch (error) {
+                console.error('Error al buscar eventos próximos:', error);
+                return handlerInput.responseBuilder
+                    .speak('Lo siento, no pude consultar los eventos en este momento. Inténtalo de nuevo más tarde.')
+                    .reprompt('Puedes intentarlo otra vez.')
+                    .getResponse();
+            }
         }
 
         try {

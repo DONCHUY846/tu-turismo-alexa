@@ -1,11 +1,13 @@
 import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
-import { sanitizeSlot } from '../utils/helpers.js';
+import { sanitizeSlot, serializeFilter } from '../utils/helpers.js';
 import { Place } from '../models/Place.js';
 import { Event } from '../models/Event.js';
 import { Restaurant } from '../models/Restaurant.js';
 import { Favorite } from '../models/Favorite.js';
 import { WEBSITE_URL, RESPUESTAS } from '../constants.js';
+import { RandomRecommendationHandler } from './RandomRecommendationHandler.js';
+import { GetMoreResultsHandler } from './GetMoreResultsHandler.js';
 
 async function handleNumberSelection(handlerInput, attrs, items, numero) {
     const item = items[numero - 1];
@@ -66,6 +68,7 @@ export const FallbackIntentHandler = {
         if (Alexa.getRequestType(handlerInput.requestEnvelope) !== 'IntentRequest') return false;
         const intentName = Alexa.getIntentName(handlerInput.requestEnvelope);
         if (intentName === 'AMAZON.FallbackIntent') return true;
+        if (intentName === 'AMAZON.NoIntent') return true;
         const attrs = handlerInput.attributesManager.getSessionAttributes();
         return attrs.pendingAction != null;
     },
@@ -75,7 +78,30 @@ export const FallbackIntentHandler = {
             || handlerInput.requestEnvelope.request?.intent?.slots?.allKeywords?.value
             || '';
 
+        const fraseBaja = utterance.toLowerCase().trim();
+
+        const palabrasSorprendeme = ['sorpréndeme', 'sorprendeme', 'recomiéndame', 'recomiendame', 'recomiéndame algo', 'recomiendame algo', 'dame una recomendación', 'dame una recomendacion', 'sugiéreme', 'sugiereme', 'qué me recomiendas', 'que me recomiendas'];
+        if (palabrasSorprendeme.some(p => fraseBaja === p || fraseBaja.includes(p))) {
+            return RandomRecommendationHandler.handle(handlerInput);
+        }
+
+        const palabrasMas = ['más', 'mas', 'muéstrame más', 'muestrame mas', 'muéstrame más resultados', 'ver más', 'ver mas', 'siguientes', 'hay más', 'hay mas', 'mostrar más', 'mostrar mas', 'más resultados', 'mas resultados'];
+        if (palabrasMas.some(p => fraseBaja === p || fraseBaja.includes(p))) {
+            return GetMoreResultsHandler.handle(handlerInput);
+        }
+
         if (attrs.ultimosItems && attrs.ultimosItems.length > 0) {
+            const negaciones = ['no', 'no gracias', 'ninguno', 'ninguna', 'no quiero guardar', 'no quiero', 'no guardes', 'no guardar'];
+            if (negaciones.some(palabra => fraseBaja === palabra || fraseBaja.includes(palabra))) {
+                delete attrs.ultimosItems;
+                handlerInput.attributesManager.setSessionAttributes(attrs);
+                const speechOutput = 'Está bien, no guardaré nada. ¿Buscamos alguna otra recomendación en Jalisco?';
+                return handlerInput.responseBuilder
+                    .speak(speechOutput)
+                    .reprompt('Puedes pedir recomendaciones diciendo "busca lugares en Guadalajara".')
+                    .getResponse();
+            }
+
             const rawNumero = utterance.toLowerCase().replace(/^(el|la|el\s+numero|numero)\s+/i, '');
             const mapOrdinal = { 'primero': 1, 'primer': 1, 'uno': 1, 'segundo': 2, 'dos': 2, 'tercero': 3, 'tercer': 3, 'tres': 3 };
             const numero = parseInt(rawNumero, 10) || mapOrdinal[rawNumero] || 0;
@@ -138,20 +164,28 @@ export const FallbackIntentHandler = {
                         delete attrs.pendingAction;
                         delete attrs.pendingIntent;
                         attrs.ultimosItems = items;
+                        attrs.ultimaBusqueda = {
+                            modelo: config.model.modelName,
+                            tipo: config.tipo,
+                            filter: serializeFilter(filter),
+                            sort: {},
+                            offset: 3
+                        };
                         handlerInput.attributesManager.setSessionAttributes(attrs);
 
                         let speechOutput = `En ${ubicacionSanitizada} tenemos: `;
+                        const ordinales = ['primero', 'segundo', 'tercero'];
                         items.forEach((item, index) => {
-                            speechOutput += `${index + 1}: ${item.nombre}. `;
+                            speechOutput += `${ordinales[index]}: ${item.nombre}. `;
                         });
                         if (totalCount > 3) {
                             speechOutput += `Hay más resultados disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
                         }
-                        speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
+                        speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el primero, el segundo o el tercero.';
 
                         return handlerInput.responseBuilder
                             .speak(speechOutput)
-                            .reprompt('Di el número para guardar en favoritos.')
+                            .reprompt('Di el primero, el segundo o el tercero para guardar en favoritos.')
                             .getResponse();
                     } catch (error) {
                         console.error('Error en fallback al buscar ubicación:', error);

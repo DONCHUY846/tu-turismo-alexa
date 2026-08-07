@@ -1,7 +1,7 @@
 import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
 import { Event } from '../models/Event.js';
-import { sanitizeSlot } from '../utils/helpers.js';
+import { sanitizeSlot, serializeFilter } from '../utils/helpers.js';
 import { WEBSITE_URL } from '../constants.js';
 
 export const GetNewEventsHandler = {
@@ -40,20 +40,28 @@ export const GetNewEventsHandler = {
 
                 const attrs = handlerInput.attributesManager.getSessionAttributes();
                 attrs.ultimosItems = items;
+                attrs.ultimaBusqueda = {
+                    modelo: 'Event',
+                    tipo: 'evento',
+                    filter: serializeFilter({ fecha: { $gte: now } }),
+                    sort: { fecha: 1 },
+                    offset: 3
+                };
                 handlerInput.attributesManager.setSessionAttributes(attrs);
 
                 let speechOutput = `Próximamente tenemos los siguientes eventos destacados. `;
+                const ordinales = ['primero', 'segundo', 'tercero'];
                 items.forEach((item, index) => {
-                    speechOutput += `${index + 1}: ${item.nombre}. `;
+                    speechOutput += `${ordinales[index]}: ${item.nombre}. `;
                 });
                 if (totalCount > 3) {
                     speechOutput += `Hay más eventos disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
                 }
-                speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
+                speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el primero, el segundo o el tercero.';
 
                 return handlerInput.responseBuilder
                     .speak(speechOutput)
-                    .reprompt('Di el número del evento que quieres guardar.')
+                    .reprompt('Di el primero, el segundo o el tercero para guardar en favoritos.')
                     .getResponse();
 
             } catch (error) {
@@ -94,23 +102,31 @@ export const GetNewEventsHandler = {
 
             const attrs = handlerInput.attributesManager.getSessionAttributes();
             attrs.ultimosItems = items;
+            attrs.ultimaBusqueda = {
+                modelo: 'Event',
+                tipo: 'evento',
+                filter: serializeFilter(filter),
+                sort: { fecha: 1 },
+                offset: 3
+            };
             handlerInput.attributesManager.setSessionAttributes(attrs);
 
             let speechOutput = `Próximamente tenemos los siguientes eventos destacados en ${ubicacionSanitizada}. `;
 
+            const ordinales = ['primero', 'segundo', 'tercero'];
             items.forEach((item, index) => {
-                speechOutput += `${index + 1}: ${item.nombre}. `;
+                speechOutput += `${ordinales[index]}: ${item.nombre}. `;
             });
 
             if (totalCount > 3) {
                 speechOutput += `Hay más eventos disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
             }
 
-            speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
+            speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el primero, el segundo o el tercero.';
 
             return handlerInput.responseBuilder
                 .speak(speechOutput)
-                .reprompt('Di el número del evento que quieres guardar.')
+                .reprompt('Di el primero, el segundo o el tercero para guardar en favoritos.')
                 .getResponse();
 
         } catch (error) {

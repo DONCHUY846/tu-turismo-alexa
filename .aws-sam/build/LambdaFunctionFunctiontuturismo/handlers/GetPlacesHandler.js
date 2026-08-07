@@ -1,7 +1,7 @@
 import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
 import { Place } from '../models/Place.js';
-import { sanitizeSlot } from '../utils/helpers.js';
+import { sanitizeSlot, serializeFilter } from '../utils/helpers.js';
 import { WEBSITE_URL } from '../constants.js';
 
 export const GetPlacesHandler = {
@@ -56,20 +56,28 @@ export const GetPlacesHandler = {
 
             const attrs = handlerInput.attributesManager.getSessionAttributes();
             attrs.ultimosItems = items;
+            attrs.ultimaBusqueda = {
+                modelo: 'Place',
+                tipo: 'lugar',
+                filter: serializeFilter(filter),
+                sort: {},
+                offset: 3
+            };
             handlerInput.attributesManager.setSessionAttributes(attrs);
 
             let speechOutput = `Tengo varias recomendaciones en ${ubicacionSanitizada}. `;
+            const ordinales = ['primero', 'segundo', 'tercero'];
             items.forEach((item, index) => {
-                speechOutput += `${index + 1}: ${item.nombre}. `;
+                speechOutput += `${ordinales[index]}: ${item.nombre}. `;
             });
             if (totalCount > 3) {
                 speechOutput += `Hay más lugares disponibles. Puedes ver el catálogo completo en ${WEBSITE_URL}. `;
             }
-            speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el número.';
+            speechOutput += '¿Te gustaría guardar alguno en tus favoritos? Di el primero, el segundo o el tercero.';
 
             const response = handlerInput.responseBuilder
                 .speak(speechOutput)
-                .reprompt('Di el número del lugar que quieres guardar.')
+                .reprompt('Di el primero, el segundo o el tercero para guardar en favoritos.')
                 .getResponse();
             return response;
         } catch (error) {

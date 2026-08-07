@@ -30,7 +30,7 @@ export const SelectFavoriteHandler = {
             const numero = parseInt(rawNumero, 10) || mapOrdinal[rawNumero] || 0;
 
             if (!numero || numero < 1 || numero > 3) {
-                const speechOutput = 'Por favor, di un número del 1 al 3 para guardar en favoritos.';
+                const speechOutput = 'Por favor, di el primero, el segundo o el tercero para guardar en favoritos.';
                 return handlerInput.responseBuilder
                     .speak(speechOutput)
                     .reprompt(speechOutput)

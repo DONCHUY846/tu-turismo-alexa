@@ -12,7 +12,7 @@ export const UserGreetingIntentHandler = {
     handle(handlerInput) {
         const attrs = handlerInput.attributesManager.getSessionAttributes();
         if (attrs.ultimosItems && attrs.ultimosItems.length > 0) {
-            const speechOutput = 'Para guardar en favoritos, solo di el número del resultado que te gustó.';
+            const speechOutput = 'Para guardar en favoritos, di el primero, el segundo o el tercero del resultado que te gustó.';
             return handlerInput.responseBuilder
                 .speak(speechOutput)
                 .reprompt(speechOutput)

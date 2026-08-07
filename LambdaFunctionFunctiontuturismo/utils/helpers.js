@@ -16,3 +16,31 @@ export function sanitizeSlot(value) {
     return value.replace(/[\$\{\}\[\]]/g, '').trim();
 }
 
+/**
+ * Convierte recursivamente un filtro de Mongoose a una forma JSON-safe,
+ * reemplazando las instancias de RegExp por { $regex, $options }.
+ * Necesario porque los atributos de sesión se serializan como JSON y un
+ * RegExp se pierde (se convierte en {}).
+ */
+export function serializeFilter(filter) {
+    if (filter instanceof RegExp) {
+        return { $regex: filter.source, $options: filter.flags };
+    }
+    if (Array.isArray(filter)) {
+        return filter.map(serializeFilter);
+    }
+    if (filter && typeof filter === 'object') {
+        const out = {};
+        for (const key of Object.keys(filter)) {
+            if (key === '$regex' && filter[key] instanceof RegExp) {
+                out.$regex = filter[key].source;
+                out.$options = filter[key].flags;
+                continue;
+            }
+            out[key] = serializeFilter(filter[key]);
+        }
+        return out;
+    }
+    return filter;
+}
+

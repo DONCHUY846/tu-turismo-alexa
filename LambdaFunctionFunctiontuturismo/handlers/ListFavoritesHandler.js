@@ -81,7 +81,7 @@ export const ListFavoritesHandler = {
             if (items.length > 3) {
                 speechOutput += `Y otros ${items.length - 3} más. `;
             }
-            speechOutput += 'Di el primero, el segundo o el tercero para eliminar o conocer tu favorito.';
+            speechOutput += 'Di el primero, el segundo o el tercero para eliminar tu favorito.';
 
             return handlerInput.responseBuilder
                 .speak(speechOutput)

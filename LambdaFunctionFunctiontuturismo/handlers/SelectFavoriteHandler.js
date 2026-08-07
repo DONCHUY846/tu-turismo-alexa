@@ -2,6 +2,7 @@ import * as Alexa from 'ask-sdk-core';
 import { connectToDatabase } from '../db/connection.js';
 import { Favorite } from '../models/Favorite.js';
 import { RESPUESTAS } from '../constants.js';
+import { RemoveFavoriteHandler } from './RemoveFavoriteHandler.js';
 
 export const SelectFavoriteHandler = {
     canHandle(handlerInput) {
@@ -11,10 +12,17 @@ export const SelectFavoriteHandler = {
     async handle(handlerInput) {
         const { requestEnvelope, attributesManager } = handlerInput;
 
+        const sessionAttributes = attributesManager.getSessionAttributes();
+
+        // Si el usuario está viendo su lista de favoritos, el número
+        // seleccionado corresponde al flujo de eliminación con confirmación.
+        if (sessionAttributes.ultimosFavoritos && sessionAttributes.ultimosFavoritos.length > 0) {
+            return RemoveFavoriteHandler.handle(handlerInput);
+        }
+
         try {
             await connectToDatabase();
 
-            const sessionAttributes = attributesManager.getSessionAttributes();
             const usuarioId = sessionAttributes.usuarioId;
 
             if (!usuarioId) {

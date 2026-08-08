@@ -37,3 +37,7 @@ logs/
 # Temporary files
 .DS_Store
 *.tmp
+
+# Local docs not tracked
+ABOUTME.md
+STRUCTURE.md
